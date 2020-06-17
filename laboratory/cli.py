@@ -44,4 +44,7 @@ def cli(cloud, config_path, dry_run, action, target):
   config["laboratory"]["cloud"] = cloud
   for t in target:
     print("{} :: {} {}".format(cloud, action, t))
-    print(ACTION_DICT[(cloud, t, action)]["fn"]())
+    action_defn = ACTION_DICT.get((cloud, t, action), ACTION_DICT.get((cloud, "shared", action)))
+    if not action_defn:
+      raise click.ClickException("Unknown action: {} :: {} {}".format(cloud, action, t))
+    print(action_defn["fn"]())
