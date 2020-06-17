@@ -1,5 +1,4 @@
-from ...config import get_config
-from . import digitalocean_api
+from ...apis.digitalocean import digitalocean_api
 from .cluster import create_cluster
 
 
@@ -12,7 +11,6 @@ def delete_node(times=1):
 
 
 def _increment_nodes(count=1):
-    config = get_config()["digitalocean"]
     cluster = create_cluster()
     pool = cluster["node_pools"][0]
     pool["count"] += count

@@ -1,5 +1,5 @@
-from ...config import get_config, get_lab_name
-from . import digitalocean_api
+from ...config import get_digitalocean_config, get_lab_name
+from ...apis.digitalocean import digitalocean_api
 
 
 def get_network():
@@ -12,7 +12,7 @@ def get_network():
 
 def create_network():
     vpc_name = get_lab_name()
-    config = get_config()["digitalocean"]
+    config = get_digitalocean_config()
 
     existing_vpc = get_network()
     if existing_vpc:

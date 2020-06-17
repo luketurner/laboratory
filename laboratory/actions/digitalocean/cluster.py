@@ -1,6 +1,6 @@
-from ...config import get_config, get_lab_name
 from ... import AppException
-from . import digitalocean_api
+from ...config import get_digitalocean_config, get_lab_name
+from ...apis.digitalocean import digitalocean_api
 from .network import get_network
 
 
@@ -15,7 +15,7 @@ def get_cluster():
 
 
 def create_cluster():
-    config = get_config()["digitalocean"]
+    config = get_digitalocean_config()
     cluster_name = get_lab_name()
 
     existing_cluster = get_cluster()
