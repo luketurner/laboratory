@@ -2,117 +2,46 @@ import click
 import requests
 import subprocess
 import json
-
 import os
 import os.path
-import configparser
+import inspect
+import importlib
 
-CLOUDS = ['digitalocean', 'home']
-TARGETS = ['cluster', 'node']
+from .config import load_config
 
-def prefixed(path, file_prefix):
-  return os.path.join(os.path.dirname(path), file_prefix + os.path.basename(path))
+def _build_actions():
+  actions = {}
+  base_path = os.path.join(os.path.dirname(__file__), "actions")
+  for cloud_name, cloud_path in [(x.name, x.path) for x in os.scandir(base_path) if x.is_dir() and x.name[0] != "_"]:
+    # cloud_dir = os.path.join(actions_dir, cloud_name)
+    for target_name, target_path in [(os.path.splitext(x.name)[0], x.path) for x in os.scandir(cloud_path) if x.is_file() and x.name[0] != "_"]:
+    # for target_file in [x for x in os.listdir(cloud_dir) if x[0] != "_"]:
+      # target_name = os.path.splitext(target_file)[0]
+      # target_path = os.path.join(cloud_dir, target_file)
+      module = importlib.import_module("laboratory.actions.{}.{}".format(cloud_name, inspect.getmodulename(target_path)))
+      for fn_name, fn in inspect.getmembers(module, inspect.isfunction):
+        if fn_name[0] != "_" and target_name in fn_name:
+          action_name = fn_name.split("_")[0]
+          actions[(cloud_name, target_name, action_name)] = { "fn": fn }
+  return actions
 
-def load_config(config_file):
-  config = configparser.ConfigParser()
-  config.read(config_file)
-  config.read(prefixed(config_file, 'secret-'))
-  return config
-
-def get_config():
-  return click.get_current_context().obj['config']
-
-def get_lab_name():
-  return click.get_current_context().obj['config']['laboratory']['lab_name']
-
-def get_cloud():
-  cloud = click.get_current_context().obj.get('cloud') or get_config()["laboratory"].get("default_cloud")
-  if not cloud:
-    raise Exception("Must specify a cloud to use.")
-
-
-@click.group()
-@click.option("--cloud", "-C", type=click.Choice(CLOUDS), default=None)
-@click.option("--config", "-c", type=click.Path(), default="config.ini")
-def cli(cloud, config):
-  config_data = load_config(config)
-  ctx = click.get_current_context()
-  ctx.ensure_object(dict)
-  ctx.obj['config'] = config_data
-  ctx.obj['cloud'] = cloud
+ACTION_DICT = _build_actions()
+CLOUD_SET = set(x for x, y, z in ACTION_DICT.keys())
+TARGET_SET = set(y for x, y, z in ACTION_DICT.keys())
+ACTION_SET = set(z for x, y, z in ACTION_DICT.keys())
 
 
-@cli.command()
-@click.argument("TARGET", type=click.Choice(TARGETS), required=True)
-def create(target):
-  cloud = get_cloud()
-  if cloud == "digitalocean":
-    if target == "cluster":
-      return create_digitalocean_cluster()
-    if target == "node":
-      return update_digitalocean_cluster_node(1)
-  raise NotImplementedError("{}-{}".format(cloud, target))
-  
-
-
-def create_digitalocean_vpc():
-  vpc_name = get_lab_name()
-  config = get_config()['digitalocean']
-  existing_vpcs = digitalocean_api("GET", "/v2/vpcs")["vpcs"]
-  for vpc in existing_vpcs:
-    if vpc.name == vpc_name:
-      return vpc
-  response = digitalocean_api("POST", "/v2/vpcs", data={
-    "name": cluster_name,
-    "description": "laboratory vpc",
-    "region": config["region"],
-    "ip_range": config["lab_subnet"]
-  })
-  return response['vpc']
-
-
-def create_digitalocean_cluster():
-  config = get_config()['digitalocean']
-  cluster_name = get_lab_name()
-
-  existing_clusters = digitalocean_api("GET", "/v2/kubernetes/clusters")["kubernetes_clusters"]
-  for cluster in existing_clusters:
-    if cluster.name == cluster_name:
-      return cluster
-
-  vpc = create_digitalocean_vpc()
-
-  response = digitalocean_api("POST", "/v2/kubernetes/clusters", data={
-    "name": cluster_name,
-    "region": config["region"],
-    "version": config["k8s_version"],
-    "auto_upgrade": config["k8s_auto_upgrade"],
-    "tags": [], # TODO -- tags?
-    "node_pools": [{
-      "size": config["node_droplet_size"],
-      "name": cluster_name + "-nodes",
-      "count": 0
-    }],
-    "vpc": vpc['id']
-  })
-  return response["kubernetes_cluster"]
-
-
-def update_digitalocean_cluster_node(count=1):
-  config = get_config()['digitalocean']
-  cluster = create_digitalocean_cluster()
-  pool = cluster['node_pools'][0]
-  pool['count'] += count
-
-  response = digitalocean_api("PUT", "/v2/kubernetes/clusters/{}/node_pools/{}".format(cluster['id'], pool['id']), data=pool)
-  return response['node_pool']
-
-
-def digitalocean_api(method, path, data=None, query=None):
-  api_key = get_config()["digitalocean"].get("api_key")
-  return requests.request(method, 
-    "https://api.digitalocean.com/v2/" + path, 
-    headers={"Authorization": "Bearer "+api_key},
-    json=data,
-    params=query
-  ).json()
+@click.command()
+@click.option("--cloud", "-C", type=click.Choice(CLOUD_SET), default=None)
+@click.option("--config-path", "-c", type=click.Path(), default="config.ini")
+@click.option("--dry-run", "-d", is_flag=True)
+@click.argument("action", type=click.Choice(ACTION_SET), required=True)
+@click.argument("target", type=click.Choice(TARGET_SET), required=True, nargs=-1)
+def cli(cloud, config_path, dry_run, action, target):
+  """Oh yeah!"""
+  config = load_config(config_path)
+  cloud = cloud or config["laboratory"]["default_cloud"]
+  config["laboratory"]["cloud"] = cloud
+  for t in target:
+    print("{} :: {} {}".format(cloud, action, t))
+    print(ACTION_DICT[(cloud, t, action)]["fn"]())
