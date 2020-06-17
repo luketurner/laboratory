@@ -28,5 +28,4 @@ def create_network():
             "ip_range": config["lab_subnet"],
         },
     )
-    print(response)
     return response["vpc"]
