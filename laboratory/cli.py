@@ -35,7 +35,7 @@ def _build_actions():
             for fn_name, fn in inspect.getmembers(module, inspect.isfunction):
                 if fn_name[0] != "_" and target_name in fn_name:
                     action_name = fn_name.split("_")[0]
-                    actions[(cloud_name, target_name, action_name)] = {"fn": fn}
+                    actions[(cloud_name, target_name.replace("_", "-"), action_name)] = {"fn": fn}
     return actions
 
 
@@ -43,7 +43,6 @@ ACTION_DICT = _build_actions()
 CLOUD_SET = set(x for x, y, z in ACTION_DICT.keys())
 TARGET_SET = set(y for x, y, z in ACTION_DICT.keys())
 ACTION_SET = set(z for x, y, z in ACTION_DICT.keys())
-
 
 @click.command()
 @click.option("--cloud", "-C", type=click.Choice(CLOUD_SET), default=None)
