@@ -18,6 +18,7 @@ def load_config(config_file):
     context = click.get_current_context()
     context.ensure_object(dict)
     context.obj["config"] = config
+    context.obj["config_file"] = config_file
 
     return config
 
@@ -26,8 +27,15 @@ def get_config():
     return click.get_current_context().obj["config"]
 
 
+def get_config_file():
+    return click.get_current_context().obj["config_file"]
+
+
 def get_lab_name():
     return click.get_current_context().obj["config"]["laboratory"]["lab_name"]
+
+def get_digitalocean_config():
+    return get_config()["digitalocean"]
 
 
 def get_cloud():
@@ -35,4 +43,13 @@ def get_cloud():
         "laboratory"
     ].get("default_cloud")
     if not cloud:
-        raise Exception("Must specify a cloud to use.")
+        raise AppException("Missing required config field: laboratory.default_cloud")
+
+def get_manifest_directory():
+    config_dir = os.path.dirname(get_config_file())
+    manifest_dir = get_config()["laboratory"].get("manifest_directory")
+    if not manifest_dir:
+        raise AppException("Missing required config field: laboratory.manifest_directory")
+    if not os.path.isabs(manifest_dir):
+        manifest_dir = os.path.join(config_dir, manifest_dir)
+    return os.path.normpath(manifest_dir)
