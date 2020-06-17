@@ -9,40 +9,49 @@ import importlib
 
 from .config import load_config
 
+def _action_functions(cloud, target):
+    module = importlib.import_module("laboratory.actions.{}.{}".format(cloud.replace("-", "_"), target.replace("-", "_")))
+    for fn_name, fn in inspect.getmembers(module, inspect.isfunction):
+        if fn_name[0] != "_" and target.replace("-", "_") in fn_name:
+            yield fn_name.split("_")[0], fn
+
+def _target_files(base_path):
+    for f in os.scandir(base_path):
+        if f.is_file() and f.name[0] != "_":
+            yield os.path.splitext(f.name)[0].replace("_", "-"), f.path
+
+def _cloud_dirs(base_path):
+    for f in os.scandir(base_path):
+        if f.is_dir() and f.name[0] != "_":
+            yield f.name.replace("_", "-"), f.path
+
+
 
 def _build_actions():
-    actions = {}
+    action_dict = {}
+    actions = set()
+    clouds = set()
+    targets = set()
+
+    def add_action(cloud, action, target, fn):
+        key = (cloud, action, target)
+        if key not in action_dict:
+            action_dict[key] = { "fn": fn }
+
     base_path = os.path.join(os.path.dirname(__file__), "actions")
-    for cloud_name, cloud_path in [
-        (x.name, x.path)
-        for x in os.scandir(base_path)
-        if x.is_dir() and x.name[0] != "_"
-    ]:
-        # cloud_dir = os.path.join(actions_dir, cloud_name)
-        for target_name, target_path in [
-            (os.path.splitext(x.name)[0], x.path)
-            for x in os.scandir(cloud_path)
-            if x.is_file() and x.name[0] != "_"
-        ]:
-            # for target_file in [x for x in os.listdir(cloud_dir) if x[0] != "_"]:
-            # target_name = os.path.splitext(target_file)[0]
-            # target_path = os.path.join(cloud_dir, target_file)
-            module = importlib.import_module(
-                "laboratory.actions.{}.{}".format(
-                    cloud_name, inspect.getmodulename(target_path)
-                )
-            )
-            for fn_name, fn in inspect.getmembers(module, inspect.isfunction):
-                if fn_name[0] != "_" and target_name in fn_name:
-                    action_name = fn_name.split("_")[0]
-                    actions[(cloud_name, target_name.replace("_", "-"), action_name)] = {"fn": fn}
-    return actions
+    for cloud_name, cloud_path in _cloud_dirs(base_path):
+        clouds.add(cloud_name)
+        for target_name, target_path in _target_files(cloud_path):
+            targets.add(target_name)
+            for action_name, action_fn in _action_functions(cloud_name, target_name):
+                actions.add(action_name)
+                add_action(cloud_name, action_name, target_name, action_fn)
 
+    clouds.remove("shared")
 
-ACTION_DICT = _build_actions()
-CLOUD_SET = set(x for x, y, z in ACTION_DICT.keys())
-TARGET_SET = set(y for x, y, z in ACTION_DICT.keys())
-ACTION_SET = set(z for x, y, z in ACTION_DICT.keys())
+    return action_dict, clouds, actions, targets
+
+ACTION_DICT, CLOUD_SET, ACTION_SET, TARGET_SET = _build_actions()
 
 @click.command()
 @click.option("--cloud", "-C", type=click.Choice(CLOUD_SET), default=None)
@@ -57,9 +66,10 @@ def cli(cloud, config_path, dry_run, action, target):
     config["laboratory"]["cloud"] = cloud
     for t in target:
         action_defn = ACTION_DICT.get(
-            (cloud, t, action), ACTION_DICT.get((cloud, "shared", action))
+            (cloud, action, t), ACTION_DICT.get(("shared", action, t))
         )
         if not action_defn:
+            print("Supported actions:", "\n".join(" ".join(x) for x in ACTION_DICT.keys()), sep="\n")
             raise click.ClickException(
                 "Unknown action: {} :: {} {}".format(cloud, action, t)
             )
