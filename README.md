@@ -8,12 +8,45 @@ When it comes to DevOps, I believe you don't _understand_ it unless you can _aut
 
 # Quick Reference
 
-The laboratory is broken into semi-independent "features". The `lab` CLI uses a `lab VERB NOUN...` format, where `NOUN` is one or more feature names.
+A laboratory consists of **clouds**. A "cloud" is an independent cluster, which may be running literally in the cloud (e.g. on DigitalOcean) or it may be running in your home network. A single laboratory can have multiple clouds, but only a single instance of each type of cloud.
 
-The following table indicates which features are supported or planned. Pairs of emoji are used to indicate status: the left emoji indicates the cloud, and the right emoji indicates the status for that cloud.
+Within the clouds, laboratory functions and apparatus are broken into semi-independent units called **features**. Splitting things into features make it easier to deploy the cloud piecemeal for learning purposes, and to opt-in or opt-out of different behaviors.
 
-- Clouds: :ocean: Digital Ocean (managed) / :house: Pi Homelab
-- Statuses: :x: N/A / :ghost: Planned, not started / :mortar_board: Learning/Planning / :heavy_check_mark: Finished 
+```
+┌───────────────────────────────────────────────────────┐
+│Laboratory                                             │
+│┌─────────────────────────────────────────────────────┐│
+││Cloud                                                ││
+││┌──────────────┐ ┌──────────────┐ ┌──────────────┐   ││
+│││   Feature    │ │   Feature    │ │   Feature    │...││
+│││              │ │              │ │              │   ││
+││└──────────────┘ └──────────────┘ └──────────────┘   ││
+││                                                     ││
+│└─────────────────────────────────────────────────────┘│
+│┌─────────────────────────────────────────────────────┐│
+││Cloud                                                ││
+││┌──────────────┐ ┌──────────────┐ ┌──────────────┐   ││
+│││   Feature    │ │   Feature    │ │   Feature    │...││
+│││              │ │              │ │              │   ││
+││└──────────────┘ └──────────────┘ └──────────────┘   ││
+││                                                     ││
+│└─────────────────────────────────────────────────────┘│
+│                          ...                          │
+│                                                       │
+└───────────────────────────────────────────────────────┘
+```
+
+Laboratory operations are performed with the `lab` CLI. Each feature has a supported set of operations, called **actions**. For example:
+
+```bash
+# run "create" action on "cluster" feature in the "digitalocean" cloud
+lab -C digitalocean create cluster
+```
+
+The following table indicates which **features** and **actions** are supported or planned for each type of **cloud**. Pairs of emoji are used to indicate status: the left emoji indicates the cloud, and the right emoji indicates the status for that cloud.
+
+- Clouds: :ocean: Digital Ocean (managed) - :house: Pi Homelab
+- Statuses: :x: N/A - :ghost: Planned, not started - :mortar_board: Learning/Planning - :heavy_check_mark: Finished 
 
 | Feature name | Verbs | Status | Notes
 |-|-|-|-|
