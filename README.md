@@ -10,21 +10,24 @@ When it comes to DevOps, I believe you don't _understand_ it unless you can _aut
 
 The laboratory is broken into semi-independent "features". The `lab` CLI uses a `lab VERB NOUN...` format, where `NOUN` is one or more feature names.
 
-The following features are supported or planned:
+The following table indicates which features are supported or planned.
+For compactness, pairs of emoji are used to indicate status. The left emoji indicates the cloud, and the right emoji indicates the status for that cloud.
 
-| Feature name | Verbs | Notes
-|-|-|-|
-| network | get, create | Singleton network (VPC)
-| cluster | get, create | Singleton Kubernetes cluster
-| node | create, delete | Manage nodes in the cluster
-| storage-operator | N/A | WIP
-| ingress-operator | N/A | WIP
-| cert-operator | N/A | WIP
-| bastion | N/A | WIP
-| image-registry | N/A | WIP
-| postgresql | N/A | WIP
-| object-store | N/A | WIP
-| 
+- Clouds: :ocean: Digital Ocean (managed) / :house: Pi Homelab
+- Statuses: :x: Not planned or N/A / :ghost: Planned, not started / :mortar_board: Learning/Planning / :heavy_check_mark: Finished 
+
+| Feature name | Verbs | Status | Notes
+|-|-|-|-|
+| network | get, create | :ocean::heavy_check_mark: :house::ghost: | Singleton network (VPC)
+| cluster | get, create | Working | Singleton Kubernetes cluster
+| node | create, delete | untested | Manage nodes in the cluster
+| storage-operator | N/A | WIP | 
+| ingress-operator | N/A | WIP | 
+| cert-operator | N/A | WIP | 
+| bastion | N/A | WIP | 
+| image-registry | N/A | WIP | 
+| postgresql | N/A | WIP | 
+| object-store | N/A | WIP | 
 
 A single laboratory can include components in multiple clouds. By default the `default_cloud` in the `config.ini` is addressed, but this behavior can be overridden with the `-C` command-line flag.
 
