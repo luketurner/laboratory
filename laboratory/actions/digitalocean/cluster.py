@@ -1,4 +1,5 @@
 from ...config import get_config, get_lab_name
+from ... import AppException
 from . import digitalocean_api
 from .network import get_network
 
@@ -22,6 +23,8 @@ def create_cluster():
         return existing_cluster
 
     vpc = get_network()
+    if not vpc:
+        raise AppException("Cannot create cluster: vpc {} not found".format(cluster_name))
 
     response = digitalocean_api(
         "POST",
@@ -30,13 +33,13 @@ def create_cluster():
             "name": cluster_name,
             "region": config["region"],
             "version": config["k8s_version"],
-            "auto_upgrade": config["k8s_auto_upgrade"],
+            "auto_upgrade": config.getboolean("k8s_auto_upgrade"),
             "tags": [],  # TODO -- tags?
             "node_pools": [
                 {
                     "size": config["node_droplet_size"],
                     "name": cluster_name + "-nodes",
-                    "count": 0,
+                    "count": 1,
                 }
             ],
             "vpc": vpc["id"],
