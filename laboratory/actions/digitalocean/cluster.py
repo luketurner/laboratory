@@ -8,9 +8,7 @@ from .network import get_network
 
 def get_cluster():
     cluster_name = get_lab_name()
-    existing_clusters = digitalocean_api("GET", "/v2/kubernetes/clusters")[
-        "kubernetes_clusters"
-    ]
+    existing_clusters = digitalocean_api("GET", "/v2/kubernetes/clusters")["kubernetes_clusters"]
     for cluster in existing_clusters:
         if cluster["name"] == cluster_name:
             return cluster
@@ -21,14 +19,10 @@ def connect_cluster(expiry=0):
     existing_cluster = get_cluster()
 
     if not existing_cluster:
-        raise AppException(
-            "Cannot find cluster to connect; try 'lab create cluster' first"
-        )
+        raise AppException("Cannot find cluster to connect; try 'lab create cluster' first")
 
     return digitalocean_api(
-        "GET",
-        "/v2/kubernetes/clusters/{}/kubeconfig".format(existing_cluster["id"]),
-        query={"expiry": expiry},
+        "GET", "/v2/kubernetes/clusters/{}/kubeconfig".format(existing_cluster["id"]), query={"expiry": expiry},
     )
 
 
@@ -42,9 +36,7 @@ def create_cluster():
 
     vpc = get_network()
     if not vpc:
-        raise AppException(
-            "Cannot create cluster: vpc {} not found".format(cluster_name)
-        )
+        raise AppException("Cannot create cluster: vpc {} not found".format(cluster_name))
 
     response = digitalocean_api(
         "POST",
@@ -56,13 +48,7 @@ def create_cluster():
             "auto_upgrade": config.getboolean("k8s_auto_upgrade"),
             # "tags": [], # TODO
             # "maintenance_policy": {}, # TODO
-            "node_pools": [
-                {
-                    "size": config["node_droplet_size"],
-                    "name": cluster_name + "-nodes",
-                    "count": 1,
-                }
-            ],
+            "node_pools": [{"size": config["node_droplet_size"], "name": cluster_name + "-nodes", "count": 1,}],
             "vpc_uuid": vpc["id"],
         },
     )

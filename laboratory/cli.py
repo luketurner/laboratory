@@ -12,9 +12,7 @@ from .config import load_config
 
 def _action_functions(cloud, target):
     module = importlib.import_module(
-        "laboratory.actions.{}.{}".format(
-            cloud.replace("-", "_"), target.replace("-", "_")
-        )
+        "laboratory.actions.{}.{}".format(cloud.replace("-", "_"), target.replace("-", "_"))
     )
     for fn_name, fn in inspect.getmembers(module, inspect.isfunction):
         if fn_name[0] != "_" and target.replace("-", "_") in fn_name:
@@ -73,17 +71,11 @@ def cli(cloud, config_path, dry_run, action, target):
     cloud = cloud or config["laboratory"]["default_cloud"]
     config["laboratory"]["cloud"] = cloud
     for t in target:
-        action_defn = ACTION_DICT.get(
-            (cloud, action, t), ACTION_DICT.get(("shared", action, t))
-        )
+        action_defn = ACTION_DICT.get((cloud, action, t), ACTION_DICT.get(("shared", action, t)))
         if not action_defn:
             print(
-                "Supported actions:",
-                "\n".join(" ".join(x) for x in ACTION_DICT.keys()),
-                sep="\n",
+                "Supported actions:", "\n".join(" ".join(x) for x in ACTION_DICT.keys()), sep="\n",
             )
-            raise click.ClickException(
-                "Unknown action: {} :: {} {}".format(cloud, action, t)
-            )
+            raise click.ClickException("Unknown action: {} :: {} {}".format(cloud, action, t))
         result = action_defn["fn"]()
         print(result if isinstance(result, str) else json.dumps(result))

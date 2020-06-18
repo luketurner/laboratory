@@ -16,8 +16,6 @@ def _increment_nodes(count=1):
     pool["count"] += count
 
     response = digitalocean_api(
-        "PUT",
-        "/v2/kubernetes/clusters/{}/node_pools/{}".format(cluster["id"], pool["id"]),
-        data=pool,
+        "PUT", "/v2/kubernetes/clusters/{}/node_pools/{}".format(cluster["id"], pool["id"]), data=pool,
     )
     return response["node_pool"]

@@ -41,6 +41,5 @@ def create_cert_operator():
         with open(key_path, "r") as keyfile:
             with open(cert_path, "r") as certfile:
                 kubecfg(
-                    "cluster-ca.jsonnet",
-                    {"key": keyfile.read(), "cert": certfile.read(),},
+                    "cluster-ca.jsonnet", {"key": keyfile.read(), "cert": certfile.read(),},
                 )
