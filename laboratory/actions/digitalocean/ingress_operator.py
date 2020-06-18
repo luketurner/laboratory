@@ -9,6 +9,7 @@ from .network import get_network
 
 
 def create_ingress_operator():
+    kubecfg("vendor/routegroup.yaml")
     kubecfg("ingress-operator-cloud.jsonnet")
     # TODO add certificates to created load balancer
 
