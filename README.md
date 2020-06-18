@@ -53,7 +53,7 @@ The following table indicates which **features** and **actions** are supported o
 | storage-operator  | create                | :ocean::heavy_check_mark: / :house::ghost: | Handles PVCs by allocating block storage
 | cert-operator     | create                | :ocean::heavy_check_mark: / :house::ghost: | Cluster-internal certificate management
 | ingress-operator  | N/A                   | :ocean::mortar_board: / :house::ghost: | HTTPS ingress to the cluster
-| image-registry    | create, connect       | :ocean::mortar_board: / :house::ghost: | Private Docker registry
+| image-registry    | get, create, connect  | :ocean::heavy_check_mark: / :house::ghost: | Private Docker registry
 | bastion           | N/A                   | :ocean::ghost: / :house::ghost: | VPN access for human operators
 | postgresql        | N/A                   | :ocean::ghost: / :house::ghost: | Shared Postgresql database
 | object-store      | N/A                   | :ocean::ghost: / :house::ghost: | Shared S3-compatible object store
@@ -92,5 +92,21 @@ cp example-secret-config.ini secret-config.ini
 vim secret-config.ioi
 
 # test lab CLI (should display helptext)
-poetry run lab --help
+poetry shell
+lab --help
+```
+
+Deploying a cloud from scratch:
+
+```bash
+lab create network
+lab create cluster
+lab create node # optional, cluster starts with 1 node
+lab create storage-operator
+lab create cert-operator
+lab create image-registry
+
+# optional -- connect local `kubectl` and/or `docker` to the cloud
+lab connect cluster > "${KUBECONFIG=~/.kube/config}"
+lab connect image-registry > "~/.docker/config"
 ```
