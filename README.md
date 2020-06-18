@@ -50,10 +50,10 @@ The following table indicates which **features** and **actions** are supported o
 | network           | get, create           | :ocean::heavy_check_mark: / :house::ghost: | Singleton network (VPC)
 | cluster           | get, create, options, connect  | :ocean::heavy_check_mark: / :house::ghost: | Singleton Kubernetes cluster
 | node              | create, delete        | :ocean::heavy_check_mark: / :house::ghost: | Manage nodes in the cluster
-| storage-operator  | N/A                   | :ocean::heavy_check_mark: / :house::ghost: | Handles PVCs by allocating block storage
-| cert-operator     | N/A                   | :ocean::mortar_board: / :house::ghost: | Cluster-internal certificate management
+| storage-operator  | create                | :ocean::heavy_check_mark: / :house::ghost: | Handles PVCs by allocating block storage
+| cert-operator     | create                | :ocean::heavy_check_mark: / :house::ghost: | Cluster-internal certificate management
 | ingress-operator  | N/A                   | :ocean::mortar_board: / :house::ghost: | HTTPS ingress to the cluster
-| image-registry    | N/A                   | :ocean::mortar_board: / :house::ghost: | Private Docker registry
+| image-registry    | create, connect       | :ocean::mortar_board: / :house::ghost: | Private Docker registry
 | bastion           | N/A                   | :ocean::ghost: / :house::ghost: | VPN access for human operators
 | postgresql        | N/A                   | :ocean::ghost: / :house::ghost: | Shared Postgresql database
 | object-store      | N/A                   | :ocean::ghost: / :house::ghost: | Shared S3-compatible object store
