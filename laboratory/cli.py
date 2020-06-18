@@ -9,22 +9,28 @@ import importlib
 
 from .config import load_config
 
+
 def _action_functions(cloud, target):
-    module = importlib.import_module("laboratory.actions.{}.{}".format(cloud.replace("-", "_"), target.replace("-", "_")))
+    module = importlib.import_module(
+        "laboratory.actions.{}.{}".format(
+            cloud.replace("-", "_"), target.replace("-", "_")
+        )
+    )
     for fn_name, fn in inspect.getmembers(module, inspect.isfunction):
         if fn_name[0] != "_" and target.replace("-", "_") in fn_name:
             yield fn_name.split("_")[0], fn
+
 
 def _target_files(base_path):
     for f in os.scandir(base_path):
         if f.is_file() and f.name[0] != "_":
             yield os.path.splitext(f.name)[0].replace("_", "-"), f.path
 
+
 def _cloud_dirs(base_path):
     for f in os.scandir(base_path):
         if f.is_dir() and f.name[0] != "_":
             yield f.name.replace("_", "-"), f.path
-
 
 
 def _build_actions():
@@ -36,7 +42,7 @@ def _build_actions():
     def add_action(cloud, action, target, fn):
         key = (cloud, action, target)
         if key not in action_dict:
-            action_dict[key] = { "fn": fn }
+            action_dict[key] = {"fn": fn}
 
     base_path = os.path.join(os.path.dirname(__file__), "actions")
     for cloud_name, cloud_path in _cloud_dirs(base_path):
@@ -51,7 +57,9 @@ def _build_actions():
 
     return action_dict, clouds, actions, targets
 
+
 ACTION_DICT, CLOUD_SET, ACTION_SET, TARGET_SET = _build_actions()
+
 
 @click.command()
 @click.option("--cloud", "-C", type=click.Choice(CLOUD_SET), default=None)
@@ -69,7 +77,11 @@ def cli(cloud, config_path, dry_run, action, target):
             (cloud, action, t), ACTION_DICT.get(("shared", action, t))
         )
         if not action_defn:
-            print("Supported actions:", "\n".join(" ".join(x) for x in ACTION_DICT.keys()), sep="\n")
+            print(
+                "Supported actions:",
+                "\n".join(" ".join(x) for x in ACTION_DICT.keys()),
+                sep="\n",
+            )
             raise click.ClickException(
                 "Unknown action: {} :: {} {}".format(cloud, action, t)
             )

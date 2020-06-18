@@ -13,14 +13,11 @@ def create_image_registry():
     if registry:
         return registry
 
-    response = digitalocean_api(
-        "POST",
-        "/v2/refistry",
-        data={
-            "name": registry_name,
-        },
-    )
+    response = digitalocean_api("POST", "/v2/refistry", data={"name": registry_name})
     return response["registry"]
 
+
 def connect_image_registry():
-  return digitalocean_api("GET", "/v2/registry/docker-credentials", query={ "read_write": "true" })
+    return digitalocean_api(
+        "GET", "/v2/registry/docker-credentials", query={"read_write": "true"}
+    )

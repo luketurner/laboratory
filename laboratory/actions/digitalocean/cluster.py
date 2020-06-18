@@ -19,11 +19,17 @@ def get_cluster():
 def connect_cluster(expiry=0):
 
     existing_cluster = get_cluster()
-    
+
     if not existing_cluster:
-        raise AppException("Cannot find cluster to connect; try 'lab create cluster' first")
-    
-    return digitalocean_api("GET", "/v2/kubernetes/clusters/{}/kubeconfig".format(existing_cluster['id']), query={ "expiry": expiry })
+        raise AppException(
+            "Cannot find cluster to connect; try 'lab create cluster' first"
+        )
+
+    return digitalocean_api(
+        "GET",
+        "/v2/kubernetes/clusters/{}/kubeconfig".format(existing_cluster["id"]),
+        query={"expiry": expiry},
+    )
 
 
 def create_cluster():
@@ -36,7 +42,9 @@ def create_cluster():
 
     vpc = get_network()
     if not vpc:
-        raise AppException("Cannot create cluster: vpc {} not found".format(cluster_name))
+        raise AppException(
+            "Cannot create cluster: vpc {} not found".format(cluster_name)
+        )
 
     response = digitalocean_api(
         "POST",
@@ -46,7 +54,8 @@ def create_cluster():
             "region": config["region"],
             "version": config["k8s_version"],
             "auto_upgrade": config.getboolean("k8s_auto_upgrade"),
-            "tags": [],  # TODO -- tags?
+            # "tags": [], # TODO
+            # "maintenance_policy": {}, # TODO
             "node_pools": [
                 {
                     "size": config["node_droplet_size"],
@@ -54,7 +63,7 @@ def create_cluster():
                     "count": 1,
                 }
             ],
-            "vpc": vpc["id"],
+            "vpc_uuid": vpc["id"],
         },
     )
     return response["kubernetes_cluster"]

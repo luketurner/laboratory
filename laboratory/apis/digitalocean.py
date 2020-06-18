@@ -14,5 +14,11 @@ def digitalocean_api(method, path, data=None, query=None):
         params=query,
     )
     if response.status_code >= 400:
-        raise AppException("{} {} response: {} {}".format(method, path, response.status_code, response.json()))
-    return response.json() if "json" in response.headers['content-type'] else response.text
+        raise AppException(
+            "{} {} response: {} {}".format(
+                method, path, response.status_code, response.json()
+            )
+        )
+    return (
+        response.json() if "json" in response.headers["content-type"] else response.text
+    )
