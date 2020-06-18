@@ -73,4 +73,5 @@ def cli(cloud, config_path, dry_run, action, target):
             raise click.ClickException(
                 "Unknown action: {} :: {} {}".format(cloud, action, t)
             )
-        print(json.dumps(action_defn["fn"]()))
+        result = action_defn["fn"]()
+        print(result if isinstance(result, str) else json.dumps(result))

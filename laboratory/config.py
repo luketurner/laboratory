@@ -44,6 +44,7 @@ def get_cloud():
     ].get("default_cloud")
     if not cloud:
         raise AppException("Missing required config field: laboratory.default_cloud")
+    return cloud
 
 def get_manifest_directory():
     config_dir = os.path.dirname(get_config_file())

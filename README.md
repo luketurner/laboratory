@@ -48,7 +48,7 @@ The following table indicates which **features** and **actions** are supported o
 | Feature name | Verbs | Status | Notes
 |-|-|-|-|
 | network           | get, create           | :ocean::heavy_check_mark: / :house::ghost: | Singleton network (VPC)
-| cluster           | get, create, options  | :ocean::heavy_check_mark: / :house::ghost: | Singleton Kubernetes cluster
+| cluster           | get, create, options, connect  | :ocean::heavy_check_mark: / :house::ghost: | Singleton Kubernetes cluster
 | node              | create, delete        | :ocean::heavy_check_mark: / :house::ghost: | Manage nodes in the cluster
 | storage-operator  | N/A                   | :ocean::heavy_check_mark: / :house::ghost: | Handles PVCs by allocating block storage
 | cert-operator     | N/A                   | :ocean::mortar_board: / :house::ghost: | Cluster-internal certificate management
