@@ -57,6 +57,8 @@ The following table indicates which **features** and **actions** are supported o
 | bastion           | N/A                   | :ocean::ghost: / :house::ghost: | VPN access for human operators
 | postgresql        | N/A                   | :ocean::ghost: / :house::ghost: | Shared Postgresql database
 | object-store      | N/A                   | :ocean::ghost: / :house::ghost: | Shared S3-compatible object store
+| gitea             | N/A                   | :ocean::ghost: / :house::ghost: | Git repository hosting
+| drone             | N/A                   | :ocean::ghost: / :house::ghost: | CI/CD task running
 
 A single laboratory can include components in multiple clouds. By default the `default_cloud` in the `config.ini` is addressed, but this behavior can be overridden with the `-C` command-line flag.
 
