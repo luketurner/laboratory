@@ -47,7 +47,7 @@ The following table indicates which **features** and **actions** are supported o
 
 | Feature name | Verbs | Status | Notes
 |-|-|-|-|
-| network           | get, create           | :ocean::heavy_check_mark: / :house::ghost: | Singleton network (VPC)
+| network           | get, create           | :ocean::heavy_check_mark: / :house::x: | Singleton network (VPC)
 | cluster           | get, create, options, connect  | :ocean::heavy_check_mark: / :house::ghost: | Singleton Kubernetes cluster
 | node              | create, delete        | :ocean::heavy_check_mark: / :house::ghost: | Manage nodes in the cluster
 | storage-operator  | create                | :ocean::heavy_check_mark: / :house::ghost: | Handles PVCs by allocating block storage
@@ -111,4 +111,23 @@ lab create image-registry
 # optional -- connect local `kubectl` and/or `docker` to the cloud
 lab connect cluster > "${KUBECONFIG=~/.kube/config}"
 lab connect image-registry > "~/.docker/config"
+```
+
+## DNS Notes
+
+One thing not yet automated is registering a domain name and configuring A records for subdomains as needed by ingress.
+
+This is a requirement for full cluster functionality, because some applications must be run with a consistent DNS name to function properly (e.g. for OAuth redirection.)
+
+Assuming your domain is `foobar.com`, follow these steps:
+
+1. After running `lab create ingress-operator`, determine the public IP address of your ingress node or load balancer, and put it in the A record for the following subdomains:
+    - `gitea.foobar.com`
+    - `drone.foobar.com`
+2. Set the `root_dns_name` in `secret-config.ini` to `foobar.com`.
+
+# Pyinfra
+
+```
+
 ```

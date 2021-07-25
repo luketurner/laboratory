@@ -32,7 +32,14 @@ def get_config_file():
 
 
 def get_lab_name():
-    return click.get_current_context().obj["config"]["laboratory"]["lab_name"]
+    return get_config()["laboratory"]["lab_name"]
+
+def get_user_name():
+    return get_config()["laboratory"]["user_name"]
+
+def get_user_email():
+    return get_config()["laboratory"]["user_email"]
+
 
 
 def get_digitalocean_config():
@@ -54,3 +61,7 @@ def get_manifest_directory():
     if not os.path.isabs(manifest_dir):
         manifest_dir = os.path.join(config_dir, manifest_dir)
     return os.path.normpath(manifest_dir)
+
+def get_dns_name(prefix):
+    root_dns_name = get_config()["laboratory"]["root_dns_name"]
+    return prefix + "." + root_dns_name if prefix else root_dns_name

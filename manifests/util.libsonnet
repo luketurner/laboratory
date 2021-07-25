@@ -28,6 +28,23 @@ local kube = import "./vendor/kube.libsonnet";
     },
   },
 
+  RouteGroup(name, match_host): kube._Object("zalando.org/v1", "RouteGroup", name) {
+    service:: "RouteGroup.service is required",
+    local this = self,
+    spec+: {
+      backends: [{
+        name: "default",
+        type: "service",
+        serviceName: this.service.metadata.name,
+        servicePort: this.service.spec.ports[0].port,
+      }],
+      defaultBackends: [{ backendName: "default" }],
+      routes: [{
+        predicates: ["Host(/^" + match_host + "$/)"],
+      }],
+    },
+  }, 
+
   certSecret(certName): { secretName: certName + "-tls" },
   certCA(certName): self.certSecret(certName) { items: [{ key: "ca.crt", path: "ca.crt" }], },
 

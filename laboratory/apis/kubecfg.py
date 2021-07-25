@@ -37,3 +37,7 @@ def kubeconfig():
             yield f.name
         else:
             raise AppException("Cannot get kubeconfig for cloud: {}".format(cloud))
+
+def kubeshell(target, args):
+    with kubeconfig() as kc:
+        return shell(["kubectl", "--kubeconfig", kc, "exec", target, "--"] + list(args))

@@ -4,7 +4,12 @@ local kube = util.kube;
 local IMAGE = "gitea/gitea:latest";
 local MODULE_NAME = "gitea";
 
-function (secretKey) {
+function (secretKey, dnsName) {
+
+  ingress: util.RouteGroup(MODULE_NAME, dnsName) {
+    service: $.service
+  },
+
   service: kube.Service(MODULE_NAME) {target_pod: $.deployment.spec.template},
 
   deployment: kube.Deployment(MODULE_NAME) {
