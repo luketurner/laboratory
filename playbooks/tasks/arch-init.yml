@@ -1,0 +1,74 @@
+# TODO -- replace with community.general.pacman module?
+- name: init pacman keychain
+  shell:
+    cmd: 'pacman-key --init'
+
+- name: populate archlinuxarm keys
+  shell:
+    cmd: 'pacman-key --populate archlinuxarm'
+
+- name: update everything
+  shell:
+    cmd: 'pacman -Syu'
+
+- name: install required packages
+  shell:
+    cmd: 'pacman -S python3 python3-pip'
+
+- name: ensure root user is locked
+  become: yes
+  user:
+    name: "root"
+    password_lock: yes
+
+- name: ensure SSH password auth is disabled
+  become: yes
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^PasswordAuthentication"
+    line: "PasswordAuthentication no"
+
+- name: ensure SSH challenge response auth is disabled
+  become: yes
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^ChallengeResponseAuthentication"
+    line: "ChallengeResponseAuthentication no"
+
+# - name: ensure SSH login is limited to home network
+#   when: limit_ssh_ips
+#   become: yes
+#   lineinfile:
+#     path: /etc/ssh/sshd_config
+#     regexp: "^AllowUsers"
+#     line: "AllowUsers {{ admin_user }}@{{ devbox_subnet_ssh }}"
+
+# - name: ensure ufw allows traffic on port 22 from home network
+#   when: limit_ssh_ips
+#   become: yes
+#   ufw:
+#     comment: "ssh from home network"
+#     rule: allow
+#     from_ip: "{{ devbox_subnet }}"
+#     to_port: "22"
+
+- name: ensure ufw allows traffic on port 22 from anywhere
+  # when: not limit_ssh_ips
+  ufw:
+    comment: "ssh from home network"
+    rule: allow
+    to_port: "22"
+  
+- name: ensure ufw blocks all other incoming connections by default
+  ufw:
+    default: deny
+    direction: incoming
+
+- name: ensure ufw is enabled
+  ufw:
+    state: enabled
+
+- name: ensure glances is installed
+  pip:
+    name: glances
+    executable: pip3

@@ -1,10 +1,11 @@
 import subprocess
+from typing import List
 
-from .. import AppException
+from ..errors import ApplicationException
 
 
-def shell(args):
+def shell(args: List[str]):
     code = subprocess.call(args)
     if code > 0:
-        raise AppException("Shell command returned nonzero exit code {}: {}".format(code, " ".join(args)))
+        raise ApplicationException("Shell command returned nonzero exit code {}: {}".format(code, " ".join(args)))
     return code

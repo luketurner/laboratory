@@ -1,0 +1,15 @@
+---
+- hosts: pi_node
+  remote_user: "{{ remote_user }}"
+  tasks:
+
+  - import_tasks: tasks/arch-init.yml
+    when: allow_init | bool
+
+  - import_tasks: tasks/admin-user.yml
+    when: allow_harden | bool
+    vars:
+      limit_ssh_ips: true
+
+  - import_tasks: common/ubuntu/utility_tasks.yml
+    when: allow_utility | bool
