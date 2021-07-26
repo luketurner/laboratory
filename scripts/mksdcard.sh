@@ -64,12 +64,12 @@ NODE_NUM="${NODE_NUM?Must specify -n/--node}"
 IP_ADDR="192.168.123.$NODE_NUM/24"
 IP_ROUTER="192.168.123.0"
 
-# Partition SD card with fdisk
+# Partition SD card with sfdisk
 # 1. Wipe any existing partitions
-# 2. Allocate first 200M to a partition - W95 FAT32 (LBA)
+# 2. Allocate first 200M to a partition
+#    type=c is partition type: W95 FAT32 (LBA)
 # 3. Allocate rest to a partition
-# 0c is partition type: W95 FAT32 (LBA)
-# 83 is partition type: Linux
+#    type=83 is partition type: Linux
 sfdisk "$SDDEV" << EOF
 label: dos
 label-id: 0x2aff57d5
@@ -123,7 +123,7 @@ echo "pi$NODE_NUM" > "$ROOTDIR/etc/hostname"
 cat >> "$ROOTDIR/etc/dhcpcd.conf" << EOF
 interface eth0
 static ip_address=$IP_ADDR
-statuc routers=$IP_ROUTER
+static routers=$IP_ROUTER
 EOF
 
 # Enable cgroups (needed for containerd)
