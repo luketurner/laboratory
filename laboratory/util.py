@@ -1,6 +1,9 @@
 import os
 import os.path
 
+def homedir():
+    return os.environ.get("HOME")
+
 def appdir(create_if_missing=False):
     xdg_config_home = os.environ.get("XDG_CONFIG_HOME") or os.path.join(os.environ.get("HOME"), ".config")
     app_dir = os.path.join(xdg_config_home, "lab")
