@@ -23,10 +23,10 @@ def cli(config_file, state_file, asset_dir):
     set_asset_dir(asset_dir)
 
 @cli.command()
-def init():
+@click.option("--admin-user", type=str, prompt="Admin username (e.g. luke)")
+def configure(admin_user):
     config = load_config()
-    print("Gathering config info...")
-    config = assoc_in(config, ["admin_user"], click.prompt("Admin username (e.g. luke)", type=str))
+    config = assoc_in(config, ["admin_user"], admin_user)
     print("Writing config", get_config_path())
     print(config_yaml(config))
     if click.confirm("Accept?"):
@@ -38,18 +38,19 @@ def cluster():
 
 
 @cluster.command()
-def init():
+@click.option("--cluster-type", type=click.Choice(["lan"]), default="lan", prompt="Cluster type")
+@click.option("--net-cidr", type=str, prompt="Subnet CIDR")
+@click.option("--router-ip", type=str, prompt="Subnet Router IP")
+@click.option("--node-device", type=click.Choice(["rpi4"]), default="rpi4", prompt="Node device type")
+@click.option("--node-os", type=click.Choice(["archlinux"]), default="archlinux", prompt="Node OS")
+@click.option("--node-arch", type=click.Choice(["aarch64"]), default="aarch64", prompt="Node architecture")
+def configure(cluster_type, net_cidr, router_ip, node_device, node_os, node_arch):
     config = load_config()
-    print("Gathering config info...")
-    print("(Note: many prompts just have one option for now.)")
-    config = assoc_in(config, ["cluster", "type"], click.prompt("Cluster type", type=click.Choice(['lan'])))
-    config = assoc_in(config, ["cluster", "net"], {
-        "cidr": click.prompt("[network] Subnet CIDR block", type=str),
-        "router_ip": click.prompt("[network] Router IP", type=str)
-    })
-    config = assoc_in(config, ["cluster", "node", "device"], click.prompt("Node device type", type=click.Choice(['rpi4'])))
-    config = assoc_in(config, ["cluster", "node", "os"], click.prompt("Node OS", type=click.Choice(['archlinux'])))
-    config = assoc_in(config, ["cluster", "node", "arch"], click.prompt("Node architecture", type=click.Choice(['aarch64'])))
+    config = assoc_in(config, ["cluster", "type"], cluster_type)
+    config = assoc_in(config, ["cluster", "net"], {"cidr": net_cidr, "router_ip": router_ip})
+    config = assoc_in(config, ["cluster", "node", "device"], node_device)
+    config = assoc_in(config, ["cluster", "node", "os"], node_os)
+    config = assoc_in(config, ["cluster", "node", "arch"], node_arch)
 
     print("Writing config", get_config_path())
     print(config_yaml(config))
@@ -62,9 +63,9 @@ def node():
     pass
 
 @node.command()
-@click.option("--public-key", "-p", type=click.Path(), default=os.path.join(home_dir, ".ssh", "id_rsa.pub"))
-@click.option("--node-num", "-n", type=int, required=True)
-@click.option("--device", "-d", type=click.Path(readable=False), required=True)
+@click.option("--public-key", "-p", type=click.Path(), default=os.path.join(home_dir, ".ssh", "id_rsa.pub"), prompt="SSH public key file")
+@click.option("--node-num", "-n", type=int, required=True, prompt="Node number (e.g. 1)")
+@click.option("--device", "-d", type=click.Path(readable=False), required=True, prompt="Block device to flash (e.g. /dev/mmcblk0)")
 def prep(public_key, node_num, device):
     prep_node(
         device=device,
@@ -73,8 +74,8 @@ def prep(public_key, node_num, device):
     )
 
 @node.command()
-@click.option("--public-key", "-p", type=click.Path(), default=os.path.join(home_dir, ".ssh", "id_rsa.pub"))
-@click.option("--node-num", "-n", type=int, required=True)
+@click.option("--public-key", "-p", type=click.Path(), default=os.path.join(home_dir, ".ssh", "id_rsa.pub"), prompt="SSH public key file")
+@click.option("--node-num", "-n", type=int, required=True, prompt="Node number (e.g. 1)")
 def provision(node_num, public_key):
     provision_node(node_num, public_key)
 
