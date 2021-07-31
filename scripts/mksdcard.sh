@@ -157,8 +157,6 @@ br_netfilter
 EOF
 
 echo "*** flushing writes..."
-
-# flush writes
 sync
 
 echo "*** copying to boot partition..."
