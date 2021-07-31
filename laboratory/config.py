@@ -4,6 +4,8 @@ import yaml
 import os
 import os.path
 
+from toolz.dicttoolz import get_in
+
 _config_cache = {}
 _config_path = None
 
@@ -43,3 +45,6 @@ def save_config(config):
 
 def config_yaml(config):
     return yaml.dump(config)
+
+def get_in_config(keys):
+    return get_in(keys, load_config())

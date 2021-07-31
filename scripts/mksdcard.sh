@@ -34,7 +34,7 @@ USER_SSH_KEY="/home/luke/.ssh/id_rsa.pub"
 while (( "$#" )); do
   case "$1" in
     -h|--help)
-      echo "Usage: mksdcard.sh -n NUM -a ARCHIVE -d DEVICE -u USER -p KEY-FILE"
+      echo "Usage: mksdcard.sh -H HOSTNAME -i IP -a ARCHIVE -d DEVICE -u USER -p KEY-FILE"
       exit 0
       ;;
     -a|--archive)
@@ -49,8 +49,16 @@ while (( "$#" )); do
       USER_SSH_KEY="$2"
       shift 2
       ;;
-    -n|--node)
-      NODE_NUM="$2"
+    -i|--ip-address)
+      IP_ADDR="$2"
+      shift 2
+      ;;
+    -H|--hostname)
+      IP_HOSTNAME="$2"
+      shift 2
+      ;;
+    -r|--router-ip)
+      IP_ROUTER="$2"
       shift 2
       ;;
     *)
@@ -63,14 +71,9 @@ done
 # Ensure required arguments were specified
 
 SDDEV="${SDDEV?Must specify -d/--device}"
-NODE_NUM="${NODE_NUM?Must specify -n/--node}"
-
-echo "*** mksdcard.sh starting..."
-
-# Calculate static IP information
-# These are hardcoded for my LAN subnet -- adjust to your needs
-IP_ADDR="192.168.123.$NODE_NUM/24"
-IP_ROUTER="192.168.123.0"
+IP_ADDR="${IP_ADDR?Must specify -i/--ip-address}"
+IP_ROUTER="${IP_ROUTER?Must specify -r/--router-ip}"
+IP_HOSTNAME="${IP_HOSTNAME?Must specify -H/--hostname}"
 
 echo "*** partitioning SD card..."
 
@@ -134,7 +137,7 @@ cp "$USER_SSH_KEY" "$ROOTDIR/root/.ssh/authorized_keys"
 sed -i 's/mmcblk0/mmcblk1/g' "$ROOTDIR/etc/fstab"
 
 # set hostname
-echo "pi$NODE_NUM" > "$ROOTDIR/etc/hostname"
+echo "$IP_HOSTNAME" > "$ROOTDIR/etc/hostname"
 
 # Static network configuration
 cat >> "$ROOTDIR/etc/dhcpcd.conf" << EOF

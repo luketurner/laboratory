@@ -41,8 +41,8 @@ def init():
     print("(Note: many prompts just have one option for now.)")
     config = assoc_in(config, ["cluster", "type"], click.prompt("Cluster type", type=click.Choice(['lan'])))
     config = assoc_in(config, ["cluster", "net"], {
-        "cidr": click.prompt("[network] Subnet CIDR block:", type=str),
-        "router_ip": click.prompt("[network] Router IP:", type=str)
+        "cidr": click.prompt("[network] Subnet CIDR block", type=str),
+        "router_ip": click.prompt("[network] Router IP", type=str)
     })
     config = assoc_in(config, ["cluster", "node", "device"], click.prompt("Node device type", type=click.Choice(['rpi4'])))
     config = assoc_in(config, ["cluster", "node", "os"], click.prompt("Node OS", type=click.Choice(['archlinux'])))
@@ -70,8 +70,9 @@ def prep(public_key, node_num, device):
     )
 
 @node.command()
-def provision():
-    provision_node()
+@click.option("--node-num", "-n", type=int, required=True)
+def provision(node_num):
+    provision_node(node_num)
 
 @cluster.command()
 def kubecfg():
