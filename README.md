@@ -71,3 +71,7 @@ Once you've provisioned all the nodes for the cluster, you can initialize the cl
 ```
 lab cluster init
 ```
+
+# 🌊 Digital Ocean
+
+I'm currently focused on building out my homelab support. A [previous version](https://github.com/luketurner/laboratory/tree/619e0701529c1219a51f8bb83440648c66fee489) of this project had code for setting up a "cloud lab" using Digital Ocean, but this is not currently working or maintained.
