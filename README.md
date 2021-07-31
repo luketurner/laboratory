@@ -26,38 +26,26 @@ poetry run lab --help
 
 # Usage (Homelab)
 
-First, we can initialize the `home` lab:
+First, `lab` needs to be configured. Run the following command:
 
-``` bash
-lab -l home init
+```bash
+lab configure
 ```
 
-The `init` command doesn't actually make any infra changes -- it just adds the `home` lab to your `config.yaml` so we can do operations on it. You'll be prompted for required lab-wide configuration like the subnet CIDR block and router IP.
+Your configuration is saved in `$XDG_CONFIG_DIR/lab/config.yml`.
 
-> **Note:** Currently, `lab` does not manage home router configuration for you. Make sure your router's configuration matches what you provided to the `init` command.
-
-Since `home` is the default value for the `--lab/-l` flag, it will be omitted from future examples, like so:
-
-``` bash
-lab init
-```
+> **Note:** Currently, `lab` does not manage router configuration for you. Make sure your router's configuration matches what you provided to the `configure` command.
 
 ## K8s Cluster
 
-Next, we can initialize the Kubernetes cluster for our home lab. (This is also a configuration-only command.)
+Next, we can initialize the Kubernetes cluster for our home lab. First, we have to run a command to configure the k8s cluster settings:
+
 
 ``` bash
-lab cluster init
+lab cluster configure
 ```
 
-Once the cluster's initialized, we have all the configuration we need to start provisioning nodes.
-
-> **Note:** There's a lot of assumptions baked in here about how my homelab works. A few important ones:
->
-> - Nodes are Raspberry Pi 4s running Arch Linux ARM (aarch64)
-> - Nodes use static IP configuration
-> - The cluster uses `k0s` instead of standard `k8s`
-> - All persistent storage is farmed out to a NAS (Not configured in this step)
+Once the cluster's configured, we can start adding nodes. 
 
 Adding a node has two steps:
 
@@ -74,4 +62,10 @@ The provisioning step covers the rest of the process of running updates, install
 
 ```
 lab cluster node provision
+```
+
+Once you've provisioned all the nodes for the cluster, you can initialize the cluster:
+
+```
+lab cluster init
 ```
