@@ -7,16 +7,20 @@ from toolz.dicttoolz import assoc_in
 from .config import get_config_path, load_config, save_config, set_config_path, config_yaml
 from .cluster import prep_node, provision_node, cluster_kubecfg, cluster_status
 from .state import set_state_path
+from .apis.assets import set_asset_dir
 
 app_dir = util.appdir(create_if_missing=True)
+home_dir = util.homedir()
 
 @click.group()
 @click.option("--config-file", "-c", type=click.Path(), default=os.path.join(app_dir, "config.yaml"))
 @click.option("--state-file", "-s", type=click.Path(), default=os.path.join(app_dir, "state.yaml"))
-def cli(config_file, state_file):
+@click.option("--asset-dir", "-a", type=click.Path(), default=os.path.join(app_dir, "assets"))
+def cli(config_file, state_file, asset_dir):
     """Oh yeah!"""
     set_config_path(config_file)
     set_state_path(state_file)
+    set_asset_dir(asset_dir)
 
 @cli.command()
 def init():
@@ -55,8 +59,15 @@ def node():
     pass
 
 @node.command()
-def prep():
-    prep_node()
+@click.option("--public-key", "-p", type=click.Path(), default=os.path.join(home_dir, ".ssh", "id_rsa.pub"))
+@click.option("--node-num", "-n", type=int, required=True)
+@click.option("--device", "-d", type=click.Path(readable=False), required=True)
+def prep(public_key, node_num, device):
+    prep_node(
+        device=device,
+        public_key=public_key,
+        node_num=node_num
+    )
 
 @node.command()
 def provision():
