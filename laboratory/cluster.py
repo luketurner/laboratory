@@ -1,6 +1,7 @@
 from .apis.ansible import run_playbook
 from .apis.script import script
 from .apis.assets import download_asset, get_asset_path
+from .apis.ssh import ssh
 from .config import get_in_config
 
 import ipaddress
@@ -30,13 +31,24 @@ def prep_node(node_num, device, public_key):
     ], sudo=True)
 
 def provision_node(node_num, public_key):
+    download_asset('binary_k0s')
     node_ip = cluster_node_ip(node_num)
+    # Install python over SSH -- since it's needed for ansible
+    ssh(
+        host=node_ip,
+        username="root",
+        cmds=[
+            ["pacman-key", "--init"],
+            ["pacman-key", "--populate", "archlinuxarm"],
+            ["pacman", "-Sy", "--noconfirm", "python"]
+        ]
+    )
     run_playbook(
-        playbook="cluster-node-rpi4-k0s.yaml",
+        playbook="cluster-node-rpi4-k0s.yml",
         inventory=[node_ip],
         extra_vars={
             "admin_user": get_in_config(["admin_user"]),
-            "remote_user": "root",
+            "playbook_user": "root",
             "k0s_binary": get_asset_path("binary_k0s"),
             "ssh_key_file": public_key,
             "k0s_master": node_num == 1 

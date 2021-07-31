@@ -9,11 +9,11 @@
 
 - name: update everything
   shell:
-    cmd: 'pacman -Syu'
+    cmd: 'pacman -Syu --noconfirm'
 
 - name: install required packages
   shell:
-    cmd: 'pacman -S python3 python3-pip'
+    cmd: 'pacman -S --noconfirm python python-pip ufw gcc sudo'
 
 - name: ensure root user is locked
   become: yes
@@ -55,7 +55,7 @@
 - name: ensure ufw allows traffic on port 22 from anywhere
   # when: not limit_ssh_ips
   ufw:
-    comment: "ssh from home network"
+    comment: "ssh"
     rule: allow
     to_port: "22"
   
@@ -67,6 +67,12 @@
 - name: ensure ufw is enabled
   ufw:
     state: enabled
+
+- name: ensure ufw systemd service is enabled
+  service:
+    name: ufw
+    enabled: yes
+    state: started
 
 - name: ensure glances is installed
   pip:

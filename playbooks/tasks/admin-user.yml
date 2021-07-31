@@ -1,5 +1,4 @@
   - name: ensure {{ admin_user }} user is created
-    when: default_user is defined
     user:
       name: "{{ admin_user }}"
       password_lock: yes
