@@ -2,6 +2,8 @@
 # Expected to run as root
 set -euo pipefail
 
+TMPDIR=""
+
 cleanup() {
     EXIT_CODE="$?"
     if [[ "$TMPDIR" != "" ]]; then
@@ -51,6 +53,10 @@ while (( "$#" )); do
       NODE_NUM="$2"
       shift 2
       ;;
+    *)
+      echo "Unknown argument: $1"
+      exit 1
+      ;;
   esac
 done
 
@@ -59,10 +65,14 @@ done
 SDDEV="${SDDEV?Must specify -d/--device}"
 NODE_NUM="${NODE_NUM?Must specify -n/--node}"
 
+echo "*** mksdcard.sh starting..."
+
 # Calculate static IP information
 # These are hardcoded for my LAN subnet -- adjust to your needs
 IP_ADDR="192.168.123.$NODE_NUM/24"
 IP_ROUTER="192.168.123.0"
+
+echo "*** partitioning SD card..."
 
 # Partition SD card with sfdisk
 # 1. Wipe any existing partitions
@@ -85,6 +95,9 @@ EOF
 mkfs.vfat "$SDDEV"1
 mkfs.ext4 "$SDDEV"2
 
+
+echo "*** mounting filesystems..."
+
 # Mount filesystems in temporary directory
 TMPDIR="$(mktemp -d)"
 BOOTDIR="$TMPDIR/boot"
@@ -94,8 +107,12 @@ mkdir -p "$ROOTDIR"
 mount "$SDDEV"1 "$BOOTDIR"
 mount "$SDDEV"2 "$ROOTDIR"
 
+echo "*** extracting OS archive..."
+
 # Extract OS archive into root partition
 bsdtar -xpf "$OS_ARCHIVE" -C "$ROOTDIR"
+
+echo "*** doing tweaks..."
 
 # Delete alarm user that exists by default
 userdel -P "$ROOTDIR" alarm
@@ -136,8 +153,12 @@ nf_conntrack
 br_netfilter
 EOF
 
+echo "*** flushing writes..."
+
 # flush writes
 sync
+
+echo "*** copying to boot partition..."
 
 # Move boot stuff to boot partition
 mv "$ROOTDIR/boot/"* "$BOOTDIR"
