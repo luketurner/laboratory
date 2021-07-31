@@ -1,0 +1,14 @@
+- name: copy k0s binary
+  copy:
+    dest: /usr/local/bin/
+    src: "{{ k0s_binary }}"
+- name: install k0scontroller service
+  when: k0s_master | bool
+  shell:
+    cmd: 'k0s install controller'
+- name: enable k0scontroller service
+  when: k0s_master | bool
+  service:
+    name: k0scontroller
+    enabled: yes
+    state: started

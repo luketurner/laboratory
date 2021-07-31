@@ -24,10 +24,13 @@ def cli(config_file, state_file, asset_dir):
 
 @cli.command()
 def init():
-    print("Resetting config file:", get_config_path())
-    print("This will DELETE existing data.")
-    if click.confirm("Continue?"):
-        save_config({})
+    config = load_config()
+    print("Gathering config info...")
+    config = assoc_in(config, ["admin_user"], click.prompt("Admin username (e.g. luke)", type=str))
+    print("Writing config", get_config_path())
+    print(config_yaml(config))
+    if click.confirm("Accept?"):
+        save_config(config)
 
 @cli.group()
 def cluster():
@@ -70,9 +73,10 @@ def prep(public_key, node_num, device):
     )
 
 @node.command()
+@click.option("--public-key", "-p", type=click.Path(), default=os.path.join(home_dir, ".ssh", "id_rsa.pub"))
 @click.option("--node-num", "-n", type=int, required=True)
-def provision(node_num):
-    provision_node(node_num)
+def provision(node_num, public_key):
+    provision_node(node_num, public_key)
 
 @cluster.command()
 def kubecfg():

@@ -1,5 +1,4 @@
   - name: ensure {{ admin_user }} user is created
-    remote_user: "{{ default_user }}"
     when: default_user is defined
     user:
       name: "{{ admin_user }}"
@@ -7,7 +6,6 @@
       shell: /usr/bin/bash
 
   - name: ensure {{ admin_user }} user can do passwordless sudo
-    remote_user: "{{ default_user }}"
     lineinfile:
       path: /etc/sudoers.d/010_{{ admin_user }}-nopasswd
       line: "{{ admin_user }} ALL=(ALL) NOPASSWD: ALL"
@@ -15,8 +13,7 @@
       create: yes
 
   - name: ensure SSH key is copied to remote
-    remote_user: "{{ default_user }}"
     authorized_key:
       user: "{{ admin_user }}"
       state: present
-      key: "{{ lookup('file', lookup('env', 'HOME') + '/.ssh/id_rsa.pub') }}"
+      key: "{{ lookup('file', ssh_key_file) }}"

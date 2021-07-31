@@ -29,9 +29,19 @@ def prep_node(node_num, device, public_key):
         '--hostname', cluster_node_hostname(node_num)
     ], sudo=True)
 
-def provision_node(node_num):
+def provision_node(node_num, public_key):
     node_ip = cluster_node_ip(node_num)
-    run_playbook(playbook="rpi4-k0s.yaml", inventory=[], extra_vars={})
+    run_playbook(
+        playbook="cluster-node-rpi4-k0s.yaml",
+        inventory=[node_ip],
+        extra_vars={
+            "admin_user": get_in_config(["admin_user"]),
+            "remote_user": "root",
+            "k0s_binary": get_asset_path("binary_k0s"),
+            "ssh_key_file": public_key,
+            "k0s_master": node_num == 1 
+        }
+    )
 
 def cluster_status():
     raise NotImplementedError()

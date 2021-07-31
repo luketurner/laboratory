@@ -13,6 +13,10 @@ _assets = {
     'archive_archlinuxarm_aarch64': {
         'filename': 'ArchLinuxARM-rpi-aarch64-latest.tar.gz',
         'url': 'http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-aarch64-latest.tar.gz'
+    },
+    'binary_k0s': {
+        'filename': 'k0s',
+        'url': 'https://github.com/k0sproject/k0s/releases/download/v1.21.3+k0s.0/k0s-v1.21.3+k0s.0-arm64'
     }
 }
 
