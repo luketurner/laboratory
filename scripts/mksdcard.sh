@@ -140,10 +140,14 @@ sed -i 's/mmcblk0/mmcblk1/g' "$ROOTDIR/etc/fstab"
 echo "$IP_HOSTNAME" > "$ROOTDIR/etc/hostname"
 
 # Static network configuration
-cat >> "$ROOTDIR/etc/dhcpcd.conf" << EOF
-interface eth0
-static ip_address=$IP_ADDR
-static routers=$IP_ROUTER
+cat >> "$ROOTDIR/etc/systemd/network/20-ethernet.network" << EOF
+[Match]
+Name=eth0
+
+[Network]
+Address=$IP_ADDR
+Gateway=$IP_ROUTER
+DNS=$IP_ROUTER
 EOF
 
 # Enable cgroups (needed for containerd)
