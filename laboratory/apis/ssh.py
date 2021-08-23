@@ -28,7 +28,11 @@ def ssh(host: str, cmds: List[List[str]], username: str, return_stdio=False):
             stdin, stdout, stderr = client.exec_command(cmdstr)
             exit_code = stdout.channel.recv_exit_status()
             if return_stdio:
-                results.append((stdout.read(), stderr.read()))            
+                if exit_code > 0:
+                    for line in stderr:
+                        print("  E ", line, end="")
+                else:
+                    results.append((stdout.read(), stderr.read()))   
             else:
                 for line in stdout:
                     print("    ", line, end="")
