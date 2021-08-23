@@ -139,7 +139,9 @@ def cluster_kubecfg():
     ])[0]
 
     filename = kubecfg_filename()
-    with open(filename, 'wb') as f:
+    def opener(path, flags):
+        return os.open(path, flags, mode=0o600)
+    with open(filename, 'wb', opener=opener) as f:
         f.write(kubecfg)
 
     # shell(args=["kubectl", "create", "clusterrolebinding", "k0s-admin-binding", "--clusterrole=admin", "--user=k0s", f"--kubeconfig={filename}"])
