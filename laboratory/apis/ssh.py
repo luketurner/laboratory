@@ -1,6 +1,7 @@
 from paramiko.client import SSHClient, AutoAddPolicy
 from typing import List
 from ..config import get_in_config
+from ..errors import ApplicationException
 
 import ipaddress
 import itertools
@@ -25,6 +26,7 @@ def ssh(host: str, cmds: List[List[str]], username: str, return_stdio=False):
             else:
                 print(f"> {cmdstr}")
             stdin, stdout, stderr = client.exec_command(cmdstr)
+            exit_code = stdout.channel.recv_exit_status()
             if return_stdio:
                 results.append((stdout.read(), stderr.read()))            
             else:
@@ -32,6 +34,8 @@ def ssh(host: str, cmds: List[List[str]], username: str, return_stdio=False):
                     print("    ", line, end="")
                 for line in stderr:
                     print("  E ", line, end="")
+            if exit_code > 0:
+                raise ApplicationException(f'Remote command exited with code {exit_code}')
         return results
     finally:
         client.close()
