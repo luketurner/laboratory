@@ -13,6 +13,8 @@ See **Getting Started** below for installation instructions, then refer to the *
 
 Requirements:
 
+- git
+- poetry
 - kubectl
 - helm
 - ansible-playbook
