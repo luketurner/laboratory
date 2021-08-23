@@ -19,19 +19,20 @@ def cluster_node_ip(node_num):
 def cluster_node_hostname(node_num):
     return f"pi{node_num}"
 
-def prep_node(node_num, device, public_key):
+def prep_node(node_num, device):
     download_asset('archive_archlinuxarm_aarch64')
     script('mksdcard.sh', [
         '--device', device,
-        '--public-key', public_key,
+        '--public-key', get_in_config(["admin_public_key"]),
         '--archive', get_asset_path('archive_archlinuxarm_aarch64'),
         '--ip-address', cluster_node_ip(node_num),
         '--router-ip', cluster_router_ip(),
         '--hostname', cluster_node_hostname(node_num)
     ], sudo=True)
 
-def provision_node(node_num, public_key):
+def provision_node(node_num):
     download_asset('binary_k0s')
+    public_key = get_in_config(["admin_public_key"])
     node_ip = cluster_node_ip(node_num)
     # Install python over SSH -- since it's needed for ansible
     ssh(
