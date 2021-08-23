@@ -47,6 +47,9 @@ def get_asset_path(asset_name):
 def get_asset_url(asset_name):
     return _get_asset(asset_name)["url"]
 
+def is_asset_executable(asset_name):
+    return _get_asset(asset_name)["executable"]
+
 def is_asset_downloaded(asset_name):
     return os.path.exists(get_asset_path(asset_name))
 
@@ -55,5 +58,6 @@ def download_asset(asset_name):
         print(f"downloading asset: {asset_name}")
         download_file(
             url=get_asset_url(asset_name),
-            filename=get_asset_path(asset_name)
+            filename=get_asset_path(asset_name),
+            mode=0o775 if is_asset_executable(asset_name) else None
         )
