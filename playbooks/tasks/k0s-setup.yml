@@ -1,8 +1,8 @@
-# - name: copy k0s binary
-#   copy:
-#     dest: /usr/local/bin/
-#     src: "{{ k0s_binary }}"
-#     mode: '755'
+- name: copy k0s binary
+  copy:
+    dest: /usr/local/bin/
+    src: "{{ k0s_binary }}"
+    mode: '755'
 - name: add localhost to hosts
   lineinfile:
     path: /etc/hosts
@@ -18,15 +18,15 @@
 - name: disable ufw (testing)
   ufw:
     state: disabled
-# - name: generate k0s.yml
-#   shell:
-#     creates: /root/k0s.yml
-#     cmd: 'k0s default-config > /root/k0s.yml'
-# - name: disable telemetry
-#   replace:
-#     path: /root/k0s.yml
-#     regexp: '(^telemetry:\n.*?enabled: )true'
-#     replace: '\1false'
+- name: generate k0s.yml
+  shell:
+    creates: /root/k0s.yml
+    cmd: 'k0s default-config > /root/k0s.yml'
+- name: disable telemetry
+  replace:
+    path: /root/k0s.yml
+    regexp: '(^telemetry:\n.*?enabled: )true'
+    replace: '\1false'
 # - name: expose port 6443 to development subnet
 #   ufw:
 #     comment: "kube-apiserver"

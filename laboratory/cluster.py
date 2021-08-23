@@ -79,53 +79,30 @@ def get_join_tokens(master_node_ip, num_tokens):
         return_stdio=True,
         username="root",
         cmds=[
-            ["k0s", "token", "create", "--role", "worker"] for x in range(num_tokens)
+            ["k0s", "token", "create", "--role", "worker", "--wait"] for x in range(num_tokens)
         ]
     )]
 
 def cluster_init(node_count, master_node, reset):
-    download_asset('binary_k0s')
-    download_asset('binary_k0sctl')
-    k0sctl = get_asset_path('binary_k0sctl')
-    k0scfg = k0scfg_filename()
-    result = shell(
-        [k0sctl, "init", "--k0s"],
-        capture_output=True
-    )
-    data = yaml.load(result.stdout)
-    data["spec"]["hosts"] = [{
-        "role": "controller+worker" if n == 1 else "worker",
-        "ssh": {
-            "address": cluster_node_ip(n),
-            "keyPath": get_in_config(["admin_private_key"]),
-            "port": 22,
-            "user": "root"
-        },
-        "k0sBinaryPath": get_asset_path("binary_k0s")
-    } for n in range(1, node_count + 1)]
-    data["spec"]["k0s"]["config"]["spec"]["telemetry"] = {"enabled": False}
-    string_data = yaml.dump(data)
-    print("Writing", k0scfg)
-    print(string_data)
-    if not click.confirm("Apply?"):
-        return
-    with open(k0scfg, "w") as f:
-        f.write(string_data)
-    shell([k0sctl, "apply", "--debug", "--config", k0scfg])
-
-    
-
-
-
-def cluster_init2(node_count, master_node, reset):
-    worker_nodes = [x for x in range(1, node_count + 1) if x != master_node]
+    worker_nodes = [x for x in range(1, node_count + 1)] # includes master node as well
     master_node_ip = cluster_node_ip(master_node)
     worker_node_ips = [cluster_node_ip(x) for x in worker_nodes]
+    print("worker nodes", worker_node_ips)
     if reset:
-        ssh(host=master_node_ip, username="root", cmds=[
-            ["k0s", "stop"],
-            ["k0s", "reset"]
-        ])
+        print("resetting...")
+        for ip in worker_node_ips:
+            try:
+                ssh(host=ip, username="root", cmds=[
+                    ["k0s", "stop"],
+                    ["systemctl", "disable", "--now", "k0sworker"],
+                    ["k0s", "reset"]
+                ])
+            except Exception as e:
+                print("Error resetting node", ip)
+                print(e)
+                if not click.confirm("Proceed?"):
+                    raise e
+    print("configuring control node...")
     ssh(host=master_node_ip, username="root", cmds=[
         ["k0s", "install", "controller", "-c", "/root/k0s.yml"],
         [
@@ -134,21 +111,25 @@ def cluster_init2(node_count, master_node, reset):
             r'/^\[Service\]/a Environment=ETCD_UNSUPPORTED_ARCH=arm64',
             "/etc/systemd/system/k0scontroller.service"
         ],
-        ["systemctl", "enable", "--now", "k0scontroller"]
+        ['systemctl', 'daemon-reload'],
+        ["k0s", "start"]
     ])
-    tokens = get_join_tokens(master_node_ip, node_count - 1)
+    tokens = get_join_tokens(master_node_ip, node_count)
     for wip, token in zip(worker_node_ips, tokens):
-        if reset:
-            ssh(host=wip, username="root", cmds=[
-                ["k0s", "stop"],
-                ["k0s", "reset"]
-            ])
+        print("configuring worker", wip)
         ssh(host=wip, username="root", cmds=[
             ["mkdir", "-p", "/var/lib/k0s"],
             ["bash", "-c", f'echo "{token}" > /var/lib/k0s/join-token'],
             ["k0s", "install", "worker", "--token-file", "/var/lib/k0s/join-token"],
-            ["k0s", "enable"]
         ])
+        if wip == master_node_ip:
+            ssh(host=wip, username="root", cmds=[
+                ["systemctl", "enable", "--now", "k0sworker"]
+            ])
+        else:
+            ssh(host=wip, username="root", cmds=[
+                ["k0s", "start"]
+            ])
 
 
 def cluster_kubecfg():
