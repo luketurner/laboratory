@@ -16,7 +16,13 @@ _assets = {
     },
     'binary_k0s': {
         'filename': 'k0s',
+        "executable": True,
         'url': 'https://github.com/k0sproject/k0s/releases/download/v1.21.3+k0s.0/k0s-v1.21.3+k0s.0-arm64'
+    },
+    'binary_k0sctl': {
+        'filename': 'k0sctl',
+        'executable': True,
+        'url': 'https://github.com/k0sproject/k0sctl/releases/download/v0.9.0/k0sctl-linux-x64'
     }
 }
 

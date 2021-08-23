@@ -5,7 +5,7 @@ from toolz.dicttoolz import assoc_in
 
 
 from .config import get_config_path, load_config, save_config, set_config_path, config_yaml
-from .cluster import prep_node, provision_node, cluster_kubecfg, cluster_status
+from .cluster import prep_node, provision_node, cluster_kubecfg, cluster_status, cluster_init
 from .state import set_state_path
 from .apis.assets import set_asset_dir
 
@@ -82,6 +82,12 @@ def prep(node_num, device):
 def provision(node_num):
     provision_node(node_num)
 
+@cluster.command()
+@click.option("--num-nodes", "-n", type=int, required=True, prompt="Total number of nodes")
+@click.option("--master-node", "-m", type=int, required=True, default=1, prompt="Master node")
+@click.option("--reset", "-R", type=bool, is_flag=True, default=False)
+def init(num_nodes, master_node, reset):
+    cluster_init(num_nodes, master_node, reset)
 
 @cluster.command()
 def kubecfg():
