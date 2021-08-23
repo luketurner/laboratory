@@ -1,14 +1,13 @@
-# Laboratory
+# 🧪 Laboratory
 
 This repository has scripts for managing my DevOps "labs":
 
 - The `home` lab has tools for managing the infrastructure in my home (i.e. I own the hardware).
 - **DEPRECATED** The `do` lab has tools for managing a "cloud lab" using Digital Ocean.
 
-See **Getting Started** below for installation instructions, then refer to **Usage (Homelab)** for details on
-how to use `lab` to manage your homelab.
+See **Getting Started** below for installation instructions, then refer to the **Homelab** section.
 
-> Please note: this is a personal project, published for reference and inspiration only.
+> **Please note:** this is a personal project, published for reference and inspiration only. 
 
 # Getting Started
 
@@ -21,10 +20,13 @@ cd laboratory
 poetry install
 
 # Run lab
-poetry run lab --help
+poetry shell
+lab --help
 ```
 
-# Usage (Homelab)
+# 🏠 Homelab
+
+This section covers using `lab` to manage your homelab.
 
 First, `lab` needs to be configured. Run the following command:
 
@@ -69,3 +71,7 @@ Once you've provisioned all the nodes for the cluster, you can initialize the cl
 ```
 lab cluster init
 ```
+
+# 🌊 Digital Ocean
+
+I'm currently focused on building out my homelab support. A [previous version](https://github.com/luketurner/laboratory/tree/619e0701529c1219a51f8bb83440648c66fee489) of this project had code for setting up a "cloud lab" using Digital Ocean, but this is not currently working or maintained.
