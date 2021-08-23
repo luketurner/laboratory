@@ -11,6 +11,15 @@ See **Getting Started** below for installation instructions, then refer to the *
 
 # Getting Started
 
+Requirements:
+
+- kubectl
+- helm
+- ansible-playbook
+- Arch Linux (for making Arch Linux ARM SD cards)
+
+Getting started:
+
 ``` bash
 # Clone the repository (installation via pip not currently recommended)
 git clone https://github.com/luketurner/laboratory.git
