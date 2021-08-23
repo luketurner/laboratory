@@ -24,9 +24,15 @@ def cli(config_file, state_file, asset_dir):
 
 @cli.command()
 @click.option("--admin-user", type=str, prompt="Admin username (e.g. luke)")
-def configure(admin_user):
+@click.option("--admin-subnet", type=str, prompt="Admin subnet CIDR")
+@click.option("--admin-private-key", type=click.Path(), default=os.path.join(home_dir, ".ssh", "id_rsa"), prompt="Path to SSH private key to use")
+@click.option("--admin-public-key", type=click.Path(), default=os.path.join(home_dir, ".ssh", "id_rsa.pub"), prompt="Path to SSH public key to use")
+def configure(admin_user, admin_subnet, admin_public_key, admin_private_key):
     config = load_config()
     config = assoc_in(config, ["admin_user"], admin_user)
+    config = assoc_in(config, ["admin_subnet"], admin_subnet)
+    config = assoc_in(config, ["admin_public_key"], admin_public_key)
+    config = assoc_in(config, ["admin_private_key"], admin_private_key)
     print("Writing config", get_config_path())
     print(config_yaml(config))
     if click.confirm("Accept?"):
@@ -63,21 +69,19 @@ def node():
     pass
 
 @node.command()
-@click.option("--public-key", "-p", type=click.Path(), default=os.path.join(home_dir, ".ssh", "id_rsa.pub"), prompt="SSH public key file")
 @click.option("--node-num", "-n", type=int, required=True, prompt="Node number (e.g. 1)")
 @click.option("--device", "-d", type=click.Path(readable=False), required=True, prompt="Block device to flash (e.g. /dev/mmcblk0)")
-def prep(public_key, node_num, device):
+def prep(node_num, device):
     prep_node(
         device=device,
-        public_key=public_key,
         node_num=node_num
     )
 
 @node.command()
-@click.option("--public-key", "-p", type=click.Path(), default=os.path.join(home_dir, ".ssh", "id_rsa.pub"), prompt="SSH public key file")
 @click.option("--node-num", "-n", type=int, required=True, prompt="Node number (e.g. 1)")
-def provision(node_num, public_key):
-    provision_node(node_num, public_key)
+def provision(node_num):
+    provision_node(node_num)
+
 
 @cluster.command()
 def kubecfg():

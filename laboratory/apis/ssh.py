@@ -1,5 +1,6 @@
 from paramiko.client import SSHClient, AutoAddPolicy
 from typing import List
+from ..config import get_in_config
 
 def ssh(host: str, cmds: List[List[str]], username: str):
     client = SSHClient()
@@ -9,7 +10,8 @@ def ssh(host: str, cmds: List[List[str]], username: str):
         print(f"executing commands on host: {username}@{host}")
         client.connect(
             hostname=host,
-            username=username
+            username=username,
+            key_filename=get_in_config(["admin_private_key"])
         )
         
         for cmd in cmds:
