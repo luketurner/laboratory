@@ -1,7 +1,7 @@
 from .apis.ansible import run_playbook
 from .apis.script import script
 from .apis.assets import download_asset, get_asset_path
-from .apis.ssh import ssh
+from .apis.ssh import ssh, calculate_ssh_style_subnet
 from .config import get_in_config
 
 import ipaddress
@@ -41,9 +41,10 @@ def provision_node(node_num):
         cmds=[
             ["pacman-key", "--init"],
             ["pacman-key", "--populate", "archlinuxarm"],
-            ["pacman", "-Sy", "--noconfirm", "python"]
+            ["pacman", "-Sy", "--noconfirm", "--needed", "python"]
         ]
     )
+    admin_subnet = get_in_config(["admin_subnet"])    
     run_playbook(
         playbook="cluster-node-rpi4-k0s.yml",
         inventory=[node_ip],
@@ -52,7 +53,10 @@ def provision_node(node_num):
             "playbook_user": "root",
             "k0s_binary": get_asset_path("binary_k0s"),
             "ssh_key_file": public_key,
-            "k0s_master": node_num == 1 
+            "k0s_master": node_num == 1,
+            "lan_subnet": get_in_config(["cluster", "net", "cidr"]),
+            "admin_subnet": admin_subnet,
+            "admin_subnet_ssh": calculate_ssh_style_subnet(admin_subnet)
         }
     )
 

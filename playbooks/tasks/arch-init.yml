@@ -13,7 +13,7 @@
 
 - name: install required packages
   shell:
-    cmd: 'pacman -S --noconfirm python python-pip ufw gcc sudo'
+    cmd: 'pacman -S --noconfirm python python-pip ufw gcc sudo vim'
 
 - name: ensure root user is locked
   become: yes
@@ -35,30 +35,24 @@
     regexp: "^ChallengeResponseAuthentication"
     line: "ChallengeResponseAuthentication no"
 
-# - name: ensure SSH login is limited to home network
-#   when: limit_ssh_ips
-#   become: yes
-#   lineinfile:
-#     path: /etc/ssh/sshd_config
-#     regexp: "^AllowUsers"
-#     line: "AllowUsers {{ admin_user }}@{{ devbox_subnet_ssh }}"
+- name: ensure SSH login is limited to home network
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^AllowUsers"
+    line: "AllowUsers root@{{ admin_subnet_ssh }} {{ admin_user }}@{{ admin_subnet_ssh }}"
 
-# - name: ensure ufw allows traffic on port 22 from home network
-#   when: limit_ssh_ips
-#   become: yes
-#   ufw:
-#     comment: "ssh from home network"
-#     rule: allow
-#     from_ip: "{{ devbox_subnet }}"
-#     to_port: "22"
-
-- name: ensure ufw allows traffic on port 22 from anywhere
-  # when: not limit_ssh_ips
+- name: ensure ufw allows traffic on port 22 from home network
   ufw:
-    comment: "ssh"
+    comment: "ssh from home network"
     rule: allow
+    from_ip: "{{ admin_subnet }}"
     to_port: "22"
-  
+
+- name: apply SSH config updates
+  service:
+    name: sshd
+    state: restarted
+
 - name: ensure ufw blocks all other incoming connections by default
   ufw:
     default: deny
