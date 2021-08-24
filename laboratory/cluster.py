@@ -12,6 +12,7 @@ import click
 import ipaddress
 import os.path
 import itertools
+from typing import List
 
 from toolz.itertoolz import nth
 
@@ -43,30 +44,31 @@ def prep_node(node_num, device):
         '--hostname', cluster_node_hostname(node_num)
     ], sudo=True)
 
-def provision_node(node_num):
+def provision_node(node_nums: List[int]):
     download_asset('binary_k0s')
     public_key = get_in_config(["admin_public_key"])
-    node_ip = cluster_node_ip(node_num)
+    node_ips = [cluster_node_ip(n) for n in node_nums]
     # Install python over SSH -- since it's needed for ansible
-    ssh(
-        host=node_ip,
-        username="root",
-        cmds=[
-            ["pacman-key", "--init"],
-            ["pacman-key", "--populate", "archlinuxarm"],
-            ["pacman", "-Sy", "--noconfirm", "--needed", "python"]
-        ]
-    )
+    for node_ip in node_ips:
+        ssh(
+            host=node_ip,
+            username="root",
+            cmds=[
+                ["pacman-key", "--init"],
+                ["pacman-key", "--populate", "archlinuxarm"],
+                ["pacman", "-Sy", "--noconfirm", "--needed", "python"]
+            ]
+        )
     admin_subnet = get_in_config(["admin_subnet"])    
     run_playbook(
         playbook="cluster-node-rpi4-k0s.yml",
-        inventory=[node_ip],
+        inventory=node_ips,
         extra_vars={
             "admin_user": get_in_config(["admin_user"]),
             "playbook_user": "root",
             "k0s_binary": get_asset_path("binary_k0s"),
             "ssh_key_file": public_key,
-            "k0s_master": node_num == 1,
+            # "k0s_master": node_num == 1,
             "lan_subnet": get_in_config(["cluster", "net", "cidr"]),
             "admin_subnet": admin_subnet,
             "admin_subnet_ssh": calculate_ssh_style_subnet(admin_subnet)

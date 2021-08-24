@@ -78,7 +78,7 @@ def prep(node_num, device):
     )
 
 @node.command()
-@click.option("--node-num", "-n", type=int, required=True, prompt="Node number (e.g. 1)")
+@click.option("--node-num", "-n", type=int, required=True, multiple=True, prompt="Node number (e.g. 1)")
 def provision(node_num):
     provision_node(node_num)
 
