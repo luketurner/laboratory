@@ -15,9 +15,9 @@
     regexp: '^::1'
     line: "::1 localhost"
     state: present
-- name: disable ufw (testing)
-  ufw:
-    state: disabled
+# - name: disable ufw (testing)
+#   ufw:
+#     state: disabled
 - name: generate k0s.yml
   shell:
     creates: /root/k0s.yml
@@ -27,69 +27,69 @@
     path: /root/k0s.yml
     regexp: '(^telemetry:\n.*?enabled: )true'
     replace: '\1false'
-# - name: expose port 6443 to development subnet
-#   ufw:
-#     comment: "kube-apiserver"
-#     rule: allow
-#     to_port: "6443"
-#     from_ip: "{{ admin_subnet }}"
-#     proto: tcp
-# - name: expose port 6443 for k0s
-#   ufw:
-#     comment: "kube-apiserver"
-#     rule: allow
-#     to_port: "6443"
-#     from_ip: "{{ lan_subnet }}"
-#     proto: tcp
-# - name: expose port 9443 for k0s
-#   ufw:
-#     comment: "k0s-api"
-#     rule: allow
-#     to_port: "9443"
-#     from_ip: "{{ lan_subnet }}"
-#     proto: tcp
-# - name: expose port 2380 for etcd
-#   ufw:
-#     comment: "etcd peers"
-#     rule: allow
-#     to_port: "2380"
-#     from_ip: "{{ lan_subnet }}"
-#     proto: tcp
-# - name: expose port 179 for kube-router
-#   ufw:
-#     comment: "kube-router"
-#     rule: allow
-#     to_port: "179"
-#     from_ip: "{{ lan_subnet }}"
-#     proto: tcp
-# - name: expose port 4789 for calico
-#   ufw:
-#     comment: "calico"
-#     rule: allow
-#     to_port: "4789"
-#     from_ip: "{{ lan_subnet }}"
-#     proto: udp
-# - name: expose port 10250 for kubelet
-#   ufw:
-#     comment: "kubelet"
-#     rule: allow
-#     to_port: "10250"
-#     from_ip: "{{ lan_subnet }}"
-#     proto: tcp
-# - name: expose port 8132 for konnectivity
-#   ufw:
-#     comment: "konnectivity server"
-#     rule: allow
-#     to_port: "8132"
-#     from_ip: "{{ lan_subnet }}"
-#     proto: tcp
-# - name: expose port 8133 for konnectivity
-#   ufw:
-#     comment: "konnectivity server"
-#     rule: allow
-#     to_port: "8133"
-#     from_ip: "{{ lan_subnet }}"
-#     proto: tcp
+- name: expose port 6443 to development subnet
+  ufw:
+    comment: "kube-apiserver"
+    rule: allow
+    to_port: "6443"
+    from_ip: "{{ admin_subnet }}"
+    proto: tcp
+- name: expose port 6443 for k0s
+  ufw:
+    comment: "kube-apiserver"
+    rule: allow
+    to_port: "6443"
+    from_ip: "{{ lan_subnet }}"
+    proto: tcp
+- name: expose port 9443 for k0s
+  ufw:
+    comment: "k0s-api"
+    rule: allow
+    to_port: "9443"
+    from_ip: "{{ lan_subnet }}"
+    proto: tcp
+- name: expose port 2380 for etcd
+  ufw:
+    comment: "etcd peers"
+    rule: allow
+    to_port: "2380"
+    from_ip: "{{ lan_subnet }}"
+    proto: tcp
+- name: expose port 179 for kube-router
+  ufw:
+    comment: "kube-router"
+    rule: allow
+    to_port: "179"
+    from_ip: "{{ lan_subnet }}"
+    proto: tcp
+- name: expose port 4789 for calico
+  ufw:
+    comment: "calico"
+    rule: allow
+    to_port: "4789"
+    from_ip: "{{ lan_subnet }}"
+    proto: udp
+- name: expose port 10250 for kubelet
+  ufw:
+    comment: "kubelet"
+    rule: allow
+    to_port: "10250"
+    from_ip: "{{ lan_subnet }}"
+    proto: tcp
+- name: expose port 8132 for konnectivity
+  ufw:
+    comment: "konnectivity server"
+    rule: allow
+    to_port: "8132"
+    from_ip: "{{ lan_subnet }}"
+    proto: tcp
+- name: expose port 8133 for konnectivity
+  ufw:
+    comment: "konnectivity server"
+    rule: allow
+    to_port: "8133"
+    from_ip: "{{ lan_subnet }}"
+    proto: tcp
 # - name: install k0scontroller service
 #   when: k0s_master | bool
 #   shell:
